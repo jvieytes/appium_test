@@ -11,7 +11,6 @@ pipeline {
         EMULATOR_NAME = 'mobile_emulator'
         EMULATOR_SERIAL = 'emulator-5554'
         APPIUM_PORT = '4723'
-        APPIUM_BASE_PATH = ''
     }
 
     stages {
@@ -44,7 +43,7 @@ pipeline {
         stage('Start Appium') {
             steps {
                 bat '''
-                    start "appium" /B cmd /c "appium server --address 127.0.0.1 --port %APPIUM_PORT% --base-path %APPIUM_BASE_PATH% > appium.log 2>&1"
+                    start "appium" /B cmd /c "appium server --address 127.0.0.1 --port %APPIUM_PORT% > appium.log 2>&1"
                 '''
             }
         }
