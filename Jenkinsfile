@@ -85,13 +85,19 @@ pipeline {
 
     post {
         always {
+            bat '''
+                adb -s %EMULATOR_SERIAL% emu kill
+                taskkill /F /IM node.exe /T
+                adb kill-server
+            '''
+
             junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
-            archiveArtifacts allowEmptyArchive: true, artifacts: 'appium.log, emulator.log, allure-results/**'
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'appium.log, emulator.log, target/allure-results/**'
 
             allure(
                 includeProperties: false,
                 jdk: '',
-                results: [[path: 'allure-results']]
+                results: [[path: 'target/allure-results']]
             )
         }
     }
