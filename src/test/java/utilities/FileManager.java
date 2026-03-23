@@ -65,7 +65,7 @@ public class FileManager {
         return ((TakesScreenshot) new DriverProvider().get()).getScreenshotAs(OutputType.BYTES);
     }
 
-    @Attachment(value = "pageSource", type = "text/html", fileExtension = "txt")
+    @Attachment(value = "pageSource", type = "text/html", fileExtension = ".html")
     public static String getPageSource() {
         final var pageSource = new DriverProvider().get().getPageSource();
 
