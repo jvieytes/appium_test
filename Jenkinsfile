@@ -11,7 +11,7 @@ pipeline {
         EMULATOR_NAME = 'mobile_emulator'
         EMULATOR_SERIAL = 'emulator-5554'
         APPIUM_PORT = '4723'
-        APPIUM_BASE_PATH = '/wd/hub'
+        APPIUM_BASE_PATH = ''
     }
 
     stages {
