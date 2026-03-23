@@ -15,6 +15,19 @@ pipeline {
     }
 
     stages {
+        stage('Reset environment') {
+            steps {
+                bat '''
+                    @echo off
+                    adb kill-server
+                    taskkill /F /IM qemu-system-x86_64.exe /T >nul 2>&1
+                    taskkill /F /IM emulator.exe /T >nul 2>&1
+                    taskkill /F /IM node.exe /T >nul 2>&1
+                    exit /b 0
+                '''
+            }
+        }
+
         stage('Precheck') {
             steps {
                 bat '''
@@ -24,23 +37,6 @@ pipeline {
                     emulator -list-avds
                     adb devices
                     appium driver list --installed
-                '''
-            }
-        }
-
-        stage('Cleanup old emulators') {
-            steps {
-                powershell '''
-                    $emulators = adb devices |
-                      Select-String '^emulator-' |
-                      ForEach-Object { ($_ -split "\\s+")[0] }
-
-                    foreach ($emu in $emulators) {
-                        Write-Host "Cerrando $emu"
-                        adb -s $emu emu kill
-                    }
-
-                    exit 0
                 '''
             }
         }
@@ -86,9 +82,13 @@ pipeline {
     post {
         always {
             bat '''
-                adb -s %EMULATOR_SERIAL% emu kill
-                taskkill /F /IM node.exe /T
+                @echo off
+                adb -s %EMULATOR_SERIAL% emu kill >nul 2>&1
                 adb kill-server
+                taskkill /F /IM qemu-system-x86_64.exe /T >nul 2>&1
+                taskkill /F /IM emulator.exe /T >nul 2>&1
+                taskkill /F /IM node.exe /T >nul 2>&1
+                exit /b 0
             '''
 
             junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
