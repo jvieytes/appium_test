@@ -54,25 +54,12 @@ pipeline {
                     start "emulator" /B cmd /c "emulator @%EMULATOR_NAME% -port 5554 -no-window -no-audio -no-boot-anim -no-snapshot-load > emulator.log 2>&1"
                     adb -s %EMULATOR_SERIAL% wait-for-device
                 '''
-                powershell '''
-                    $ok = $false
-                    for($i=0; $i -lt 60; $i++){
-                        $boot = (adb -s emulator-5554 shell getprop sys.boot_completed).Trim()
-                        if($boot -eq '1'){
-                            $ok = $true
-                            break
-                        }
-                        Start-Sleep -Seconds 5
-                    }
-                    if(-not $ok){ exit 1 }
-                '''
-            }
         }
 
         stage('Run Tests') {
             steps {
                 bat '''
-                    mvn clean test -Dcucumber.filter.tags="@mobile_emulator"
+                    mvn clean test
                 '''
             }
         }
