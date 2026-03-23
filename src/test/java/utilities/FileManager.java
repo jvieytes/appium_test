@@ -69,7 +69,6 @@ public class FileManager {
     public static String getPageSource() {
         final var pageSource = new DriverProvider().get().getPageSource();
 
-        return pageSource != null ?
-                Jsoup.parse(pageSource).toString() : "Error al tomar el page source";
+        return pageSource != null ? pageSource : "Error al tomar el page source";
     }
 }
