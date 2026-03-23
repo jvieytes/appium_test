@@ -65,10 +65,11 @@ public class FileManager {
         return ((TakesScreenshot) new DriverProvider().get()).getScreenshotAs(OutputType.BYTES);
     }
 
-    @Attachment(value = "pageSource", type = "text/html", fileExtension = ".html")
+    @Attachment(value = "pageSource", type = "text/html", fileExtension = "txt")
     public static String getPageSource() {
         final var pageSource = new DriverProvider().get().getPageSource();
 
-        return pageSource != null ? pageSource : "Error al tomar el page source";
+        return pageSource != null ?
+                Jsoup.parse(pageSource).toString() : "Error al tomar el page source";
     }
 }
