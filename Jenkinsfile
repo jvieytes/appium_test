@@ -8,17 +8,39 @@ pipeline {
     }
 
     stages {
-        stage('Validar tools') {
+        stage('Precheck') {
             steps {
                 bat '''
-                    echo JAVA_HOME=%JAVA_HOME%
-                    where java
-                    java -version
-                    where mvn
-                    mvn -version
-                    where node
-                    node -v
-                    npm -v
+                    where appium
+                    where adb
+                    where emulator
+                    emulator -list-avds
+                    appium driver list --installed
+                '''
+            }
+        }
+
+        stage('Start Appium') {
+            steps {
+                bat '''
+                    start "appium" /B cmd /c "appium server --port 4723 --base-path /wd/hub"
+                '''
+            }
+        }
+
+        stage('Start Emulator') {
+            steps {
+                bat '''
+                    start "emulator" /B cmd /c "emulator @mobile_emulator -no-window -no-audio -no-boot-anim"
+                    adb wait-for-device
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                bat '''
+                    mvn clean test -Dcucumber.filter.tags="@mobile_emulator"
                 '''
             }
         }
