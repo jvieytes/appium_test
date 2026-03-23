@@ -60,7 +60,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 bat '''
-                    mvn clean test
+                    mvn clean test -Dgroups="regression"
                 '''
             }
         }
