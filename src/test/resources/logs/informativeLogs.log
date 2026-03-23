@@ -1,9 +1,5 @@
-21:51:02.120 INFO  AUTOMATION - Suite iniciada: Surefire suite
-21:51:09.476 INFO  AUTOMATION - Comenzando el test: fallidoTest
-21:51:09.505 INFO  AUTOMATION - Esperando 2 segundos
-21:51:11.515 INFO  AUTOMATION - Forzando que falle el test
-21:51:12.376 INFO  AUTOMATION - Test fallido: fallidoTest
-21:51:20.386 INFO  AUTOMATION - Comenzando el test: primerTest
-21:51:20.388 INFO  AUTOMATION - Esperamos 3 segundos!!!
-21:51:23.397 INFO  AUTOMATION - Test exitoso: primerTest
-21:51:24.213 INFO  AUTOMATION - Suite finalizada: Surefire suite
+23:45:13.982 INFO  AUTOMATION - Suite iniciada: Surefire suite
+23:45:21.033 INFO  AUTOMATION - Comenzando el test: fallidoTest
+23:45:21.063 INFO  AUTOMATION - Esperando 2 segundos
+23:45:23.073 INFO  AUTOMATION - Forzando que falle el test
+23:45:23.960 INFO  AUTOMATION - Test fallido: fallidoTest

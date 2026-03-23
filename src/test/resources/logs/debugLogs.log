@@ -1,23 +1,14 @@
-21:51:02.120 INFO  AUTOMATION - Suite iniciada: Surefire suite
-21:51:02.174 DEBUG AUTOMATION - Borrando las carpetas de evidencias
-21:51:02.253 DEBUG AUTOMATION - Inicializando el driver
-21:51:02.257 DEBUG AUTOMATION - Inicialiado el driver
-21:51:09.365 DEBUG AUTOMATION - Asignando el driver al driver provider
-21:51:09.476 INFO  AUTOMATION - Comenzando el test: fallidoTest
-21:51:09.505 INFO  AUTOMATION - Esperando 2 segundos
-21:51:11.515 INFO  AUTOMATION - Forzando que falle el test
-21:51:11.525 DEBUG AUTOMATION - Tomando evidencias para allure
-21:51:12.376 INFO  AUTOMATION - Test fallido: fallidoTest
-21:51:12.376 DEBUG AUTOMATION - Tomando screenshot
-21:51:12.793 DEBUG AUTOMATION - Tomando page source
-21:51:12.793 DEBUG AUTOMATION - Creando los directorios padres sie s que no existen
-21:51:12.902 DEBUG AUTOMATION - Matando el driver
-21:51:13.693 DEBUG AUTOMATION - Inicializando el driver
-21:51:13.693 DEBUG AUTOMATION - Inicialiado el driver
-21:51:20.385 DEBUG AUTOMATION - Asignando el driver al driver provider
-21:51:20.386 INFO  AUTOMATION - Comenzando el test: primerTest
-21:51:20.388 INFO  AUTOMATION - Esperamos 3 segundos!!!
-21:51:23.395 DEBUG AUTOMATION - Tomando evidencias para allure
-21:51:23.397 INFO  AUTOMATION - Test exitoso: primerTest
-21:51:23.397 DEBUG AUTOMATION - Matando el driver
-21:51:24.213 INFO  AUTOMATION - Suite finalizada: Surefire suite
+23:45:13.982 INFO  AUTOMATION - Suite iniciada: Surefire suite
+23:45:14.032 DEBUG AUTOMATION - Borrando las carpetas de evidencias
+23:45:14.147 DEBUG AUTOMATION - Inicializando el driver
+23:45:14.151 DEBUG AUTOMATION - Inicialiado el driver
+23:45:20.915 DEBUG AUTOMATION - Asignando el driver al driver provider
+23:45:21.033 INFO  AUTOMATION - Comenzando el test: fallidoTest
+23:45:21.063 INFO  AUTOMATION - Esperando 2 segundos
+23:45:23.073 INFO  AUTOMATION - Forzando que falle el test
+23:45:23.083 DEBUG AUTOMATION - Tomando evidencias para allure
+23:45:23.960 INFO  AUTOMATION - Test fallido: fallidoTest
+23:45:23.961 DEBUG AUTOMATION - Tomando screenshot
+23:45:24.432 DEBUG AUTOMATION - Tomando page source
+23:45:24.432 DEBUG AUTOMATION - Creando los directorios padres sie s que no existen
+23:45:24.530 DEBUG AUTOMATION - Matando el driver
