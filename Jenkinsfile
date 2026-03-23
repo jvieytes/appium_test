@@ -54,6 +54,7 @@ pipeline {
                     start "emulator" /B cmd /c "emulator @%EMULATOR_NAME% -port 5554 -no-window -no-audio -no-boot-anim -no-snapshot-load > emulator.log 2>&1"
                     adb -s %EMULATOR_SERIAL% wait-for-device
                 '''
+            }
         }
 
         stage('Run Tests') {
