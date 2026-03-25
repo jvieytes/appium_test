@@ -26,43 +26,20 @@ pipeline {
         stage('Start Mobile Stack') {
             steps {
                 bat '''
-                    docker compose -f %COMPOSE_FILE% up -d
+                    docker compose -f %COMPOSE_FILE% up -d --wait --wait-timeout 600
                     docker compose -f %COMPOSE_FILE% ps
                 '''
             }
         }
 
-        stage('Wait Emulator Ready') {
+        stage('Validate Emulator + ADB') {
             steps {
                 powershell '''
-                    $ok = $false
-                    for($i=0; $i -lt 60; $i++){
-                        try {
-                            $status = (docker exec android-emulator cat device_status).Trim()
-                            Write-Host "device_status=$status"
-                            if($status -match "device" -or $status -match "running" -or $status -match "online"){
-                                $ok = $true
-                                break
-                            }
-                        } catch {
-                        }
-                        Start-Sleep -Seconds 10
-                    }
+                    Write-Host "Validando estado del emulador..."
+                    docker exec android-emulator cat device_status
 
-                    if(-not $ok){
-                        Write-Host "El emulador no quedo listo a tiempo"
-                        docker compose -f compose.yml logs --no-color
-                        exit 1
-                    }
-                '''
-            }
-        }
-
-        stage('Wait ADB Connection In Appium') {
-            steps {
-                powershell '''
                     $ok = $false
-                    for($i=0; $i -lt 60; $i++){
+                    for($i=0; $i -lt 24; $i++){
                         try {
                             $adb = docker exec appium-server adb devices
                             Write-Host $adb
@@ -70,7 +47,11 @@ pipeline {
                             $lines = $adb -split "`n"
                             foreach($line in $lines){
                                 $trimmed = $line.Trim()
-                                if($trimmed -ne "" -and -not $trimmed.StartsWith("List of devices attached") -and $trimmed.EndsWith("device")){
+                                if(
+                                    $trimmed -ne "" -and
+                                    -not $trimmed.StartsWith("List of devices attached") -and
+                                    $trimmed.EndsWith("device")
+                                ){
                                     $ok = $true
                                     break
                                 }
@@ -81,38 +62,14 @@ pipeline {
                             }
                         } catch {
                         }
+
                         Start-Sleep -Seconds 5
                     }
 
                     if(-not $ok){
                         Write-Host "Appium no detecto ningun dispositivo ADB"
-                        docker compose -f compose.yml logs --no-color
-                        exit 1
-                    }
-                '''
-            }
-        }
-
-        stage('Wait Appium Ready') {
-            steps {
-                powershell '''
-                    $ok = $false
-                    for($i=0; $i -lt 60; $i++){
-                        try {
-                            $resp = Invoke-RestMethod -Uri "http://127.0.0.1:4723/status" -Method Get -TimeoutSec 5
-                            if($resp.value.ready -eq $true){
-                                $ok = $true
-                                break
-                            }
-                        } catch {
-                        }
-                        Start-Sleep -Seconds 5
-                    }
-
-                    if(-not $ok){
-                        Write-Host "Appium no quedo listo a tiempo"
-                        docker compose -f compose.yml ps
-                        docker compose -f compose.yml logs --no-color
+                        docker compose -f %COMPOSE_FILE% ps
+                        docker compose -f %COMPOSE_FILE% logs --no-color android-emulator appium
                         exit 1
                     }
                 '''
@@ -131,12 +88,19 @@ pipeline {
     post {
         always {
             bat '''
-                docker compose -f %COMPOSE_FILE% logs --no-color > docker-compose.log
+                docker compose -f %COMPOSE_FILE% ps > docker-compose-ps.log
+                docker compose -f %COMPOSE_FILE% logs --no-color android-emulator > android-emulator.log
+                docker compose -f %COMPOSE_FILE% logs --no-color appium > appium-server.log
             '''
 
             junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
 
-            archiveArtifacts allowEmptyArchive: true, artifacts: 'docker-compose.log, target/allure-results/**'
+            archiveArtifacts allowEmptyArchive: true, artifacts: '''
+                docker-compose-ps.log,
+                android-emulator.log,
+                appium-server.log,
+                target/allure-results/**
+            '''
 
             allure(
                 includeProperties: false,
