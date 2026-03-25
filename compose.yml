@@ -6,8 +6,8 @@ services:
     devices:
       - /dev/kvm:/dev/kvm
     ports:
-      - "6080:6080"   # noVNC para ver el emulador
-      - "5555:5555"   # ADB del emulador
+      - "6080:6080"
+      - "5555:5555"
     environment:
       EMULATOR_DEVICE: "Samsung Galaxy S10"
       WEB_VNC: "true"
@@ -31,6 +31,7 @@ services:
     environment:
       REMOTE_ADB: "true"
       ANDROID_DEVICES: "android-emulator:5555"
+      REMOTE_ADB_POLLING_SEC: "20"
       APPIUM_ADDITIONAL_PARAMS: "--relaxed-security"
     restart: unless-stopped
 
