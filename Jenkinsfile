@@ -32,6 +32,58 @@ pipeline {
             }
         }
 
+        stage('Wait Emulator Ready') {
+            steps {
+                powershell '''
+                    $ok = $false
+                    for($i=0; $i -lt 60; $i++){
+                        try {
+                            $status = (docker exec android-emulator cat device_status).Trim()
+                            Write-Host "device_status=$status"
+                            if($status -match "device" -or $status -match "running" -or $status -match "online"){
+                                $ok = $true
+                                break
+                            }
+                        } catch {
+                        }
+                        Start-Sleep -Seconds 10
+                    }
+
+                    if(-not $ok){
+                        Write-Host "El emulador no quedo listo a tiempo"
+                        docker compose -f compose.yml logs --no-color
+                        exit 1
+                    }
+                '''
+            }
+        }
+
+        stage('Wait ADB Connection In Appium') {
+            steps {
+                powershell '''
+                    $ok = $false
+                    for($i=0; $i -lt 60; $i++){
+                        try {
+                            $adb = docker exec appium-server adb devices
+                            Write-Host $adb
+                            if($adb -match "device`r?$" -or $adb -match "device\s*$"){
+                                $ok = $true
+                                break
+                            }
+                        } catch {
+                        }
+                        Start-Sleep -Seconds 5
+                    }
+
+                    if(-not $ok){
+                        Write-Host "Appium no detecto ningun dispositivo ADB"
+                        docker compose -f compose.yml logs --no-color
+                        exit 1
+                    }
+                '''
+            }
+        }
+
         stage('Wait Appium Ready') {
             steps {
                 powershell '''
@@ -50,8 +102,8 @@ pipeline {
 
                     if(-not $ok){
                         Write-Host "Appium no quedo listo a tiempo"
-                        docker compose -f docker-compose.yml ps
-                        docker compose -f docker-compose.yml logs --no-color
+                        docker compose -f compose.yml ps
+                        docker compose -f compose.yml logs --no-color
                         exit 1
                     }
                 '''
