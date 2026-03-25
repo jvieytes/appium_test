@@ -5,9 +5,12 @@ services:
     privileged: true
     devices:
       - /dev/kvm:/dev/kvm
+    ports:
+      - "6080:6080"
+      - "5555:5555"
     environment:
       EMULATOR_DEVICE: "Samsung Galaxy S10"
-      WEB_VNC: "false"
+      WEB_VNC: "true"
       WEB_LOG: "false"
       EMULATOR_DATA_PARTITION: "2048m"
       EMULATOR_NO_SKIN: "true"
@@ -19,8 +22,6 @@ services:
         -gpu swiftshader_indirect
         -memory 4096
         -partition-size 2048
-        -camera-back none
-        -camera-front none
     volumes:
       - android-data:/home/androidusr
     shm_size: "2gb"
@@ -47,12 +48,6 @@ services:
       ANDROID_DEVICES: "android-emulator:5555"
       REMOTE_ADB_POLLING_SEC: "20"
       APPIUM_ADDITIONAL_PARAMS: "--relaxed-security"
-    healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- http://127.0.0.1:4723/status >/dev/null 2>&1 || exit 1" ]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 20s
 
 volumes:
   android-data:
