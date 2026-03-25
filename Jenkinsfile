@@ -66,8 +66,17 @@ pipeline {
                         try {
                             $adb = docker exec appium-server adb devices
                             Write-Host $adb
-                            if($adb -match "device`r?$" -or $adb -match "device\s*$"){
-                                $ok = $true
+
+                            $lines = $adb -split "`n"
+                            foreach($line in $lines){
+                                $trimmed = $line.Trim()
+                                if($trimmed -ne "" -and -not $trimmed.StartsWith("List of devices attached") -and $trimmed.EndsWith("device")){
+                                    $ok = $true
+                                    break
+                                }
+                            }
+
+                            if($ok){
                                 break
                             }
                         } catch {
