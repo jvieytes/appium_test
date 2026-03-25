@@ -9,7 +9,7 @@ pipeline {
 
     environment {
         APPIUM_URL = 'http://127.0.0.1:4723/'
-        COMPOSE_FILE = 'docker-compose.yml'
+        COMPOSE_FILE = 'compose.yml'
     }
 
     stages {
