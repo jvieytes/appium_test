@@ -8,63 +8,52 @@ pipeline {
     }
 
     environment {
-        EMULATOR_NAME = 'mobile_emulator'
-        EMULATOR_SERIAL = 'emulator-5554'
-        APPIUM_PORT = '4723'
+        APPIUM_URL = 'http://127.0.0.1:4723/'
+        COMPOSE_FILE = 'docker-compose.yml'
     }
 
     stages {
-        stage('Reset environment') {
+        stage('Precheck Docker') {
             steps {
                 bat '''
-                    @echo off
-                    adb kill-server
-                    taskkill /F /IM qemu-system-x86_64.exe /T >nul 2>&1
-                    taskkill /F /IM emulator.exe /T >nul 2>&1
-                    taskkill /F /IM node.exe /T >nul 2>&1
-                    exit /b 0
+                    docker version
+                    docker compose version
+                    docker compose -f %COMPOSE_FILE% config
                 '''
             }
         }
 
-        stage('Precheck') {
+        stage('Start Mobile Stack') {
             steps {
                 bat '''
-                    where appium
-                    where adb
-                    where emulator
-                    emulator -list-avds
-                    adb devices
-                    appium driver list --installed
+                    docker compose -f %COMPOSE_FILE% up -d
+                    docker compose -f %COMPOSE_FILE% ps
                 '''
             }
         }
 
-        stage('Start Appium') {
+        stage('Wait Appium Ready') {
             steps {
-                bat '''
-                    start "appium" /B cmd /c "appium server --address 127.0.0.1 --port %APPIUM_PORT% > appium.log 2>&1"
-                '''
-            }
-        }
-
-        stage('Start Emulator') {
-            steps {
-                bat '''
-                    start "emulator" /B cmd /c "emulator @%EMULATOR_NAME% -port 5554 -no-window -no-audio -no-boot-anim -no-snapshot-load > emulator.log 2>&1"
-                    adb -s %EMULATOR_SERIAL% wait-for-device
-                '''
                 powershell '''
                     $ok = $false
                     for($i=0; $i -lt 60; $i++){
-                        $boot = (adb -s emulator-5554 shell getprop sys.boot_completed).Trim()
-                        if($boot -eq '1'){
-                            $ok = $true
-                            break
+                        try {
+                            $resp = Invoke-RestMethod -Uri "http://127.0.0.1:4723/status" -Method Get -TimeoutSec 5
+                            if($resp.value.ready -eq $true){
+                                $ok = $true
+                                break
+                            }
+                        } catch {
                         }
                         Start-Sleep -Seconds 5
                     }
-                    if(-not $ok){ exit 1 }
+
+                    if(-not $ok){
+                        Write-Host "Appium no quedo listo a tiempo"
+                        docker compose -f docker-compose.yml ps
+                        docker compose -f docker-compose.yml logs --no-color
+                        exit 1
+                    }
                 '''
             }
         }
@@ -72,7 +61,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 bat '''
-                    mvn clean test -Dgroups="regression"
+                    mvn clean test -Dgroups="regression" -Dappium.url=%APPIUM_URL%
                 '''
             }
         }
@@ -81,23 +70,22 @@ pipeline {
     post {
         always {
             bat '''
-                @echo off
-                adb -s %EMULATOR_SERIAL% emu kill >nul 2>&1
-                adb kill-server
-                taskkill /F /IM qemu-system-x86_64.exe /T >nul 2>&1
-                taskkill /F /IM emulator.exe /T >nul 2>&1
-                taskkill /F /IM node.exe /T >nul 2>&1
-                exit /b 0
+                docker compose -f %COMPOSE_FILE% logs --no-color > docker-compose.log
             '''
 
             junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
-            archiveArtifacts allowEmptyArchive: true, artifacts: 'appium.log, emulator.log, target/allure-results/**'
+
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'docker-compose.log, target/allure-results/**'
 
             allure(
                 includeProperties: false,
                 jdk: '',
                 results: [[path: 'target/allure-results']]
             )
+
+            bat '''
+                docker compose -f %COMPOSE_FILE% down
+            '''
         }
     }
 }

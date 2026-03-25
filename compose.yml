@@ -1,0 +1,38 @@
+services:
+  android-emulator:
+    image: budtmo/docker-android:emulator_14.0
+    container_name: android-emulator
+    privileged: true
+    devices:
+      - /dev/kvm:/dev/kvm
+    ports:
+      - "6080:6080"   # noVNC para ver el emulador
+      - "5555:5555"   # ADB del emulador
+    environment:
+      EMULATOR_DEVICE: "Samsung Galaxy S10"
+      WEB_VNC: "true"
+      EMULATOR_DATA_PARTITION: "2048m"
+      EMULATOR_ADDITIONAL_ARGS: "-memory 4096 -no-snapshot"
+    volumes:
+      - android-data:/home/androidusr
+    shm_size: "2gb"
+    cpus: 4
+    mem_limit: "6g"
+    restart: unless-stopped
+
+  appium:
+    image: appium/appium
+    container_name: appium-server
+    privileged: true
+    depends_on:
+      - android-emulator
+    ports:
+      - "4723:4723"
+    environment:
+      REMOTE_ADB: "true"
+      ANDROID_DEVICES: "android-emulator:5555"
+      APPIUM_ADDITIONAL_PARAMS: "--relaxed-security"
+    restart: unless-stopped
+
+volumes:
+  android-data:
